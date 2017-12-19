@@ -1,0 +1,23 @@
+---
+- name: Prometheus env | copy env yaml
+  template:
+    src: prometheus-env.yaml.j2
+    dest: "{{ kube_config_dir }}/prometheus-env.yaml"
+    force: true
+    owner: root
+    mode: 0755
+ 
+- name: Prometheus env | apply env
+  command: "{{ bin_dir }}/kubectl apply -f {{ kube_config_dir }}/prometheus-env.yaml -n {{ system_namespace }}"
+ 
+- name: Prometheus configmap | copy configmap yaml
+  template:
+    src: prometheus-configmap.yaml.j2
+    dest: "{{ kube_config_dir }}/prometheus-configmap.yaml"
+    force: true
+    owner: root
+    mode: 0755
+ 
+- name: Prometheus configmap | apply configmap
+  shell: |
+    {{ bin_dir }}/kubectl apply -f {{ kube_config_dir }}/prometheus-configmap.yaml -n {{ system_namespace }}

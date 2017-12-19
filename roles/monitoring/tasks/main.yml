@@ -1,0 +1,42 @@
+---
+- name: "Monitoring | Write monitoring manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ kube_config_dir }}/{{ item }}"
+  with_items:
+    - "monitoring-sa.yml"
+    - "monitoring-clusterrolebinding.yml"
+  when: rbac_enabled and inventory_hostname == groups['kube-master'][0] 
+
+- name: "Monitoring | Create Serviceaccount and Clusterrolebinding (RBAC)"
+  command: "kubectl apply -f {{ kube_config_dir }}/{{ item }} -n {{ system_namespace }}"
+  with_items:
+    - "monitoring-sa.yml"
+    - "monitoring-clusterrolebinding.yml"
+  when: rbac_enabled and inventory_hostname == groups['kube-master'][0]
+
+- name: check exist storageclass
+  command: "{{ bin_dir }}/kubectl get sc -o jsonpath={.items..name}"
+  register: sc_exist
+  when: sc_name != "none"
+
+- name: override storageclass name
+  set_fact:
+    sc_name: "none"
+  when: '(sc_name!="none") and (sc_name not in sc_exist.stdout)'
+
+- include: install_mysql_exporter.yml
+  when: use_mysql_exporter == true
+  tags: monitoring,mysql-exporter
+
+- include: create_configs.yml
+  tags: monitoring
+ 
+- include: create_node_exporter.yml
+  tags: monitoring
+ 
+- include: create_prometheus.yml
+  tags: monitoring
+ 
+- include: create_grafana.yml
+  tags: monitoring

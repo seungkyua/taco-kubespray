@@ -1,0 +1,62 @@
+---
+- name: Prometheus | copy alertmanager yaml
+  template:
+    src: alertmanager.yaml.j2
+    dest: "{{ kube_config_dir }}/alertmanager.yaml"
+    force: true
+    owner: root
+    mode: 0755
+  when: prom_alert_type != ""
+ 
+- name: Prometheus | create alertmanager
+  command: "{{ bin_dir }}/kubectl apply --force -f {{ kube_config_dir }}/alertmanager.yaml -n {{ system_namespace }}"
+  when: prom_alert_type != ""
+ 
+- name: Prometheus | copy alert rule yaml
+  template:
+    src: prometheus-rules.yaml.j2
+    dest: "{{ kube_config_dir }}/prometheus-rules.yaml"
+    force: true
+    owner: root
+    mode: 0755
+  when: prom_alert_type != ""
+ 
+- name: Prometheus | create alert rules
+  command: "{{ bin_dir }}/kubectl apply -f {{ kube_config_dir }}/prometheus-rules.yaml -n {{ system_namespace }}"
+  when: prom_alert_type != ""
+
+- name: Prometheus | copy yaml
+  template:
+    src: prometheus-pvc.yaml.j2
+    dest: "{{ kube_config_dir }}/prometheus-pvc.yaml"
+    force: true
+    owner: root
+    mode: 0755
+  when: sc_name != "none"
+
+- name: Prometheus | apply pvc
+  command: "{{ bin_dir }}/kubectl apply -f {{ kube_config_dir }}/prometheus-pvc.yaml -n {{ system_namespace }}"
+  when: 'sc_name!="none"'
+
+- name: Prometheus deployment | copy deloy yaml
+  template:
+    src: prometheus-deploy.yaml.j2
+    dest: "{{ kube_config_dir }}/prometheus-deploy.yaml"
+    force: true
+    owner: root
+    mode: 0755
+
+- name: Prometheus deployment | apply deploy
+  shell: |
+    {{ bin_dir }}/kubectl apply --force -f {{ kube_config_dir }}/prometheus-deploy.yaml -n {{ system_namespace }}
+ 
+- name: Prometheus service | copy svc yaml
+  template:
+    src: prometheus-svc.yaml.j2
+    dest: "{{ kube_config_dir }}/prometheus-svc.yaml"
+    force: true
+    owner: root
+    mode: 0755
+
+- name: Prometheus service | apply svc
+  command: "{{ bin_dir }}/kubectl apply -f {{ kube_config_dir }}/prometheus-svc.yaml -n {{ system_namespace }}"

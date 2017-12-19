@@ -1,0 +1,26 @@
+---
+- hosts: localhost
+  vars_prompt:
+    name: "target_host"
+    prompt: "Type the target inventory node name to reset."
+    default: "no"
+    private: no
+
+  pre_tasks:
+    - name: check target host
+      fail:
+        msg: "Not matching inventory's node."
+      when: "target_host not in groups['all']"
+    - name: set target host
+      set_fact:
+        target_host: "{{ target_host }}"
+
+- hosts: "{{ hostvars['localhost']['target_host'] }}"
+  roles:
+    - { role: kubespray-defaults}
+    - { role: reset, tags: reset }
+
+- hosts: kube-master[0]
+  pre_tasks:
+    - name: Delete target node
+      command: "kubectl delete node {{ hostvars['localhost']['target_host'] }}"

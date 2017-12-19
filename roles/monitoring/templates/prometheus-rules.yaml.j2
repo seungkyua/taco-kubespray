@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  labels:
+    app: prometheus
+    name: prometheus-rules
+data:
+  instance-down.rules: |-
+    ALERT InstanceDown
+      IF up == 0
+      FOR {{ prom_rules_info.duration }}
+      LABELS {{'{'}} severity = "page" {{'}'}}
+      ANNOTATIONS {{'{'}}
+        SUMMARY = "Instance {{'{{'}} $labels.instance {{'}}'}} down",
+        DESCRIPTION = "{{'{{'}} $labels.instance {{'}}'}} of job {{'{{'}} $labels.job {{'}}'}} has been down for more than {{ prom_rules_info.duration }}."
+      {{'}'}}
+  cpu-usage.rules: |-
+    ALERT NodeCPUUsage
+      IF (100 - (avg by (instance) (irate(node_cpu{name="node-exporter",mode="idle"}[5m])) * 100)) > {{ prom_rules_info.cpu_usage }}
+      FOR {{ prom_rules_info.duration }}
+      LABELS {{'{'}}
+        severity="page"
+      {{'}'}}
+      ANNOTATIONS {{'{'}}
+        SUMMARY = "{{'{{'}}$labels.instance{{'}}'}}: High CPU usage detected",
+        DESCRIPTION = "{{'{{'}}$labels.instance{{'}}'}}: CPU usage is above {{ prom_rules_info.cpu_usage }}% (current value is: {{'{{'}} $value {{'}}'}})"
+      {{'}'}}
+{% for item in prom_rules_info.container_names %}
+    ALERT PodsCPUUsage
+      IF sum(irate(container_cpu_usage_seconds_total{kubernetes_pod_name=~"(.+|){{ item.name }}(.+)"}[2m])) by (kubernetes_io_hostname) / sum(machine_cpu_cores) by (kubernetes_io_hostname)  * 100 > {{ item.cpu_usage }}
+      FOR {{ prom_rules_info.duration }}
+      LABELS {{'{'}}
+        severity="page"
+      {{'}'}}
+      ANNOTATIONS {{'{'}}
+        SUMMARY = "{{'{{'}}$labels.instance{{'}}'}}: High CPU usage detected",
+        DESCRIPTION = "{{'{{'}}$labels.instance{{'}}'}}: CPU usage is above {{ item.cpu_usage }}% (container name : {{ item.name }}, current value is: {{'{{'}} $value {{'}}'}})"
+      {{'}'}}
+{% endfor %}
+      
+  mem-usage.rules: |-
+    ALERT NodeSwapUsage
+      IF (((node_memory_SwapTotal-node_memory_SwapFree)/node_memory_SwapTotal)*100) > {{ prom_rules_info.mem_usage }}
+      FOR {{ prom_rules_info.duration }}
+      LABELS {{'{'}}
+        severity="page"
+      {{'}'}}
+      ANNOTATIONS {{'{'}}
+        SUMMARY = "{{'{{'}}$labels.instance{{'}}'}}: Swap usage detected",
+        DESCRIPTION = "{{'{{'}}$labels.instance{{'}}'}}: Swap usage usage is above {{ prom_rules_info.mem_usage }}% (current value is: {{'{{'}} $value {{'}}'}})"
+      {{'}'}}
+    
+    ALERT NodeMemoryUsage
+      IF (((node_memory_MemTotal-node_memory_MemFree-node_memory_Cached)/(node_memory_MemTotal)*100)) > {{ prom_rules_info.mem_usage }}
+      FOR {{ prom_rules_info.duration }}
+      LABELS {{'{'}}
+        severity="page"
+      {{'}'}}
+      ANNOTATIONS {{'{'}}
+        SUMMARY = "{{'{{'}}$labels.instance{{'}}'}}: High memory usage detected",
+        DESCRIPTION = "{{'{{'}}$labels.instance{{'}}'}}: Memory usage is above {{ prom_rules_info.mem_usage }}% (current value is: {{'{{'}} $value {{'}}'}})"
+      {{'}'}}
+
+{% for item in prom_rules_info.container_names %}
+    ALERT PodsMemoryUsage
+      IF sum(container_memory_usage_bytes{kubernetes_pod_name=~"(.+|){{ item.name }}(.+)"}) by (kubernetes_io_hostname) / 1024 / 1024 > {{ item.mem_megabytes }}
+      FOR {{ prom_rules_info.duration }}
+      LABELS {{'{'}}
+        severity="page"
+      {{'}'}}
+      ANNOTATIONS {{'{'}}
+        SUMMARY = "{{'{{'}}$labels.instance{{'}}'}}: High memory usage detected",
+        DESCRIPTION = "{{'{{'}}$labels.instance{{'}}'}}: Memory usage is above {{ item.mem_megabytes }}MB (container name : {{ item.name }}, current value is: {{'{{'}} $value {{'}}'}})"
+      {{'}'}}
+{% endfor %}
+
+  low-disk-space.rules: |-
+    ALERT NodeLowRootDisk
+      IF ((node_filesystem_size{{'{'}}mountpoint="{{ prom_rules_info.disk_mount_path }}"{{'}'}} - node_filesystem_free{{'{'}}mountpoint="{{ prom_rules_info.disk_mount_path }}"{{'}'}} ) / node_filesystem_size{{'{'}}mountpoint="{{ prom_rules_info.disk_mount_path }}"{{'}'}} * 100) > {{ prom_rules_info.disk_usage }}
+      FOR {{ prom_rules_info.duration }}
+      LABELS {{'{'}}
+        severity="page"
+      {{'}'}}
+      ANNOTATIONS {{'{'}}
+        SUMMARY = "{{'{{'}}$labels.instance{{'}}'}}: Low root disk space",
+        DESCRIPTION = "{{'{{'}}$labels.instance{{'}}'}}: Root disk usage is above {{ prom_rules_info.disk_usage }}% (current value is: {{'{{'}} $value {{'}}'}})"
+      {{'}'}}
+    
+    ALERT NodeLowDataDisk
+      IF ((node_filesystem_size{{'{'}}mountpoint="{{ prom_rules_info.disk_mount_path }}"{{'}'}} - node_filesystem_free{{'{'}}mountpoint="{{ prom_rules_info.disk_mount_path }}"{{'}'}} ) / node_filesystem_size{{'{'}}mountpoint="{{ prom_rules_info.disk_mount_path }}"{{'}'}} * 100) > {{ prom_rules_info.disk_usage }}
+      FOR {{ prom_rules_info.duration }}
+      LABELS {{'{'}}
+        severity="page"
+      {{'}'}}
+      ANNOTATIONS {{'{'}}
+        SUMMARY = "{{'{{'}}$labels.instance{{'}}'}}: Low data disk space",
+        DESCRIPTION = "{{'{{'}}$labels.instance{{'}}'}}: Data disk usage is above {{ prom_rules_info.disk_usage }}% (current value is: {{'{{'}} $value {{'}}'}})"
+      {{'}'}}

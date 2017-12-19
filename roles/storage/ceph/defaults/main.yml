@@ -1,0 +1,14 @@
+storageclass_name: ceph
+monitors: 192.168.54.21:6789
+admin_id: admin
+admin_secret_name: ceph-secret-admin
+admin_secret_namespace: kube-system
+admin_token: QVFDcUVVVlkzUnZyQlJBQUJtaHR4SzJNdkQvd2hpaVZaNUprd3c9PQo=
+pool_name: kube
+user_id: kube
+user_secret_name: ceph-secret-user
+user_secret_namespace: kube-system
+user_token: QVFDUHJyZFlibjZQSnhBQVd5bW9yblVVVmJDa2dXTjZoK21QRmc9PQo=
+image_format: 1
+image_feature: layering
+

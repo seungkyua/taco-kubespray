@@ -1,0 +1,17 @@
+{% for ip in mysql_pod_ips %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mysql-exporter-svc-{{ loop.index }}
+    group: mysql-exporter-svc
+  namespace: {{ system_namespace }}
+  name: mysql-exporter-svc-{{ loop.index }}
+spec:
+  ports:
+  - port: 9104
+    name: port-9104
+  selector:
+    app: mysql-exporter-{{ loop.index }}
+{% endfor %}

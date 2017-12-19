@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-configmap
+data:
+  prometheus.yml: |-
+    rule_files:
+      - "/etc/prometheus-rules/*.rules"
+    scrape_configs:
+{% if use_mysql_exporter == true %}
+    - job_name: 'mysql-monitoring'
+      scrape_interval: 5s
+      static_configs:
+{% for ip in mysql_exporter_cluster_ips %}
+        - targets: ['{{ ip }}:9104']
+          labels:
+            group: 'mysql'
+{% endfor %}
+{% endif %}
+
+{% for job in prometheus_jobs %}
+ 
+{% include "jobs/"+job+".job.j2" %}
+ 
+{% endfor %}

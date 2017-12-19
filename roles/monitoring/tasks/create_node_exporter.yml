@@ -1,0 +1,11 @@
+---
+- name: Node exporter | copy yaml
+  template:
+    src: node-exporter.yaml.j2
+    dest: "{{ kube_config_dir }}/node-exporter.yaml"
+    force: true
+    owner: root
+    mode: 0755
+ 
+- name: Node exporter | apply
+  command: "{{ bin_dir }}/kubectl apply --force -f {{ kube_config_dir }}/node-exporter.yaml -n {{ system_namespace }}"

@@ -1,0 +1,62 @@
+---
+- name: Mysql-Exporter | search pod list
+  command: "{{ bin_dir }}/kubectl get pod -n {{ mysql_namespace }} -l 'app=mariadb,galera=enabled' -o jsonpath={.items..metadata.name}"
+  register: search_mysql_pods
+
+- name: Mysql-Exporter | set fact mysql pods
+  set_fact:
+    mysql_pods: "{{ search_mysql_pods.stdout_lines[0].split() }}"
+
+- name: Mysql-Exporter | set grant
+  shell: |
+    {{ bin_dir }}/kubectl exec -n {{ mysql_namespace }} {{ item }} -- mysql -u{{ mysql_db_info.user }} -p{{ mysql_db_info.password }} -e "GRANT REPLICATION CLIENT, PROCESS ON *.* TO '{{ mysql_exporter_grant_info.user }}'@'%' identified by '{{ mysql_exporter_grant_info.password }}';"
+    {{ bin_dir }}/kubectl exec -n {{ mysql_namespace }} {{ item }} -- mysql -u{{ mysql_db_info.user }} -p{{ mysql_db_info.password }} -e "GRANT SELECT ON performance_schema.* TO '{{ mysql_exporter_grant_info.user }}'@'%';"
+  with_items: "{{ mysql_pods }}"
+ 
+- name: Mysql-Exporter | get mysql pod ip
+  shell: |
+    {{ bin_dir }}/kubectl exec -n {{ mysql_namespace }} {{ item }} ip addr show eth0 | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b"
+  register: ips
+  with_items: "{{ mysql_pods }}"
+ 
+- name: Mysql-Exporter | set fact ip
+  set_fact:
+    mysql_pod_ips: "{{ ips.results }}"
+
+- name: Mysql-Exporter | copy svc yaml
+  template:
+    src: mysql-exporter-svc.yaml.j2
+    dest: "{{ kube_config_dir }}/mysql-exporter-svc.yaml"
+    force: true
+    owner: root
+    mode: 0755
+
+- name: Mysql-Exporter | create svc
+  shell: |
+    {{ bin_dir }}/kubectl create -f {{ kube_config_dir }}/mysql-exporter-svc.yaml
+  ignore_errors: yes
+
+- name: Mysql-Exporter | copy deploy yaml
+  template:
+    src: mysql-exporter.yaml.j2
+    dest: "{{ kube_config_dir }}/mysql-exporter.yaml"
+    force: true
+    owner: root
+    mode: 0755
+ 
+- name: Mysql-Exporter | create deploy
+  shell: |
+    {{ bin_dir }}/kubectl delete -f {{ kube_config_dir }}/mysql-exporter.yaml
+    {{ bin_dir }}/kubectl create -f {{ kube_config_dir }}/mysql-exporter.yaml
+  ignore_errors: yes
+
+- name: Mysql-Exporter | get cluster ip
+  shell: |
+    ips=$({{ bin_dir }}/kubectl get svc -n {{ system_namespace }} -l 'group=mysql-exporter-svc' -o jsonpath={..spec.clusterIP})
+    # split ips
+    echo $ips | sed -e 's/ /\n/g'
+  register: clusterIPs
+
+- name: Mysql-Exporter | set fact ip
+  set_fact:
+    mysql_exporter_cluster_ips: "{{ clusterIPs.stdout_lines }}"

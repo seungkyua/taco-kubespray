@@ -1,0 +1,86 @@
+---
+prometheus_target_node: "{{ groups['kube-node'][0] }}"
+
+# storageclasses name : none / ceph
+sc_name: ceph
+
+# installed ceph exporter ips
+ceph_exporter_ips:
+  - '172.31.30.237:9128'
+
+# dashboard json
+dashboards:
+  - k8s-etcd.json
+  - mysql_overview.json
+  - ceph-cluster.json
+  - ceph-pools.json
+
+# include prometheus jobs
+prometheus_jobs:
+  - etcd
+  - kubernetes-cluster
+  - kubernetes-nodes
+  - kubernetes-node-exporter
+  - kubernetes-service-endpoints
+  - kubernetes-services
+  - kubernetes-pods
+  - ceph
+
+# pod containers name
+pod_containers:
+  - kube-apiserver
+  - kube-controller-manager
+  - kube-scheduler
+  - kube-proxy
+ 
+# grafana account
+grafana_id: admin
+grafana_pw: password
+
+# use mysql-exporter
+use_mysql_exporter: false
+
+# mysql namespace
+mysql_namespace : default
+
+# mysql database info
+mysql_db_info:
+  port: 3306
+  user: root
+  password: root
+
+# mysql-exporter grant user info
+mysql_exporter_grant_info:
+  user: prom
+  password: abc123
+
+# alert type : email or slack
+prom_alert_type: ""
+
+# alertmanager : slack url
+prom_alert_slack_url: 'https://hooks.slack.com/services/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'
+
+#  host: 'email-smtp.us-east-1.amazonaws.com:587'
+#  from: 'mailer@exntu.com'
+#  username: 'username'
+#  password: 'password'
+#  to: 'boozer@bliex.com'
+prom_alert_email_info:
+  host: 
+  from: 
+  username: 
+  password: 
+  to: 
+
+# prometheus rule info
+prom_rules_info:
+  cpu_usage: 75
+  mem_usage: 75
+  disk_usage: 75
+  disk_mount_path: /data-disk
+  duration: 2m
+  container_names: []
+#    - { name: kube-apiserver, cpu_usage: 30, mem_megabytes: 300 }
+#    - { name: kube-controller-manager, cpu_usage: 30, mem_megabytes: 300 }
+#    - { name: kube-scheduler, cpu_usage: 30, mem_megabytes: 300 }
+#    - { name: kube-proxy, cpu_usage: 30, mem_megabytes: 300 }

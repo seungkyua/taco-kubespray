@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: monitoring
+  namespace: {{ system_namespace }}
+  labels:
+    kubernetes.io/cluster-service: "true"
+    name: monitoring-serviceaccount

@@ -1,0 +1,7 @@
+{% if sc_name == 'ceph' %}
+    - job_name: 'ceph-exporter'
+      static_configs:
+        - targets: ["{{ ceph_exporter_ips|join('","') }}"]
+          labels:
+            alias: ceph-exporter
+{% endif %}

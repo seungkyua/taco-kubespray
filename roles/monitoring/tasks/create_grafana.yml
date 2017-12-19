@@ -1,0 +1,164 @@
+---
+- name: Grafana config file | create directory
+  file:
+    path: "{{ kube_config_dir }}/grafana"
+    state: directory
+    owner: root
+    mode: 0755
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['kube-node']}}"
+
+- name: Grafana config file | copy ini file
+  template:
+    src: grafana.ini.j2
+    dest: "{{ kube_config_dir }}/grafana/grafana.ini"
+    force: true
+    owner: root
+    mode: 0755
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['kube-node']}}"
+
+- name: Grafana | copy yaml
+  template:
+    src: grafana-pvc.yaml.j2
+    dest: "{{ kube_config_dir }}/grafana-pvc.yaml"
+    force: true
+    owner: root
+    mode: 0755
+  when: sc_name != "none"
+
+- name: Grafana | apply pvc
+  command: "{{ bin_dir }}/kubectl apply -f {{ kube_config_dir }}/grafana-pvc.yaml -n {{ system_namespace }}"
+  when: 'sc_name!="none"'
+
+- name: Grafana | copy yaml
+  template:
+    src: grafana.yaml.j2
+    dest: "{{ kube_config_dir }}/grafana.yaml"
+    force: true
+    owner: root
+    mode: 0755
+
+- name: Grafana | apply
+  command: "{{ bin_dir }}/kubectl apply --force -f {{ kube_config_dir }}/grafana.yaml -n {{ system_namespace }}"
+
+- name: Get prometheus/grafana clusterIPs
+  shell: "{{ bin_dir }}/kubectl get svc -n {{ system_namespace }} -l 'name={{ item }}' -o jsonpath={.items..spec.clusterIP}"
+  register: clusterIPs
+  with_items:
+    - prometheus
+    - grafana
+ 
+- name: Check grafana status
+  shell: "{{ bin_dir }}/kubectl get pods -n {{ system_namespace }} -l 'name=grafana' -o jsonpath={.items..status.phase}"
+  register: status_result
+  until: status_result.stdout == "Running"
+  retries: 20
+  delay: 10
+ 
+- name: Check grafana running by ping
+  uri:
+    url: "http://{{ clusterIPs.results[1].stdout }}:3000/api/login/ping"
+    method: GET
+    status_code: 401
+    headers:
+      Content-Type: 'application/json'
+  register: ping_result
+  until: ping_result.status == 401
+  retries: 10
+  delay: 5
+ 
+- name: Add prometheus datasource to grafana
+  uri:
+    url: "http://{{ clusterIPs.results[1].stdout }}:3000/api/datasources"
+    method: POST
+    user: "{{ grafana_id }}"
+    password: "{{ grafana_pw }}"
+    force_basic_auth: yes
+    body: "{\"name\": \"Prometheus\",\"type\": \"prometheus\",\"url\": \"http://{{ clusterIPs.results[0].stdout }}:9090\",\"access\": \"proxy\",\"isDefault\": true}"
+    body_format: json
+    headers:
+      Content-Type: 'application/json'
+  ignore_errors: yes
+
+- name: Read CPU core count
+  shell: cat /proc/cpuinfo | grep processor | wc -l
+  delegate_to: "{{ item }}"
+  register: processor_count
+  with_items: "{{ groups['k8s-cluster'] }}"
+  no_log: True
+
+- name: Set CPU core count to variable
+  set_fact:
+    cpu_cores: "{{ cpu_cores|default({}) | combine( {item.item: item.stdout} ) }}"
+  with_items: "{{ processor_count.results }}"
+  no_log: True
+ 
+# using jinja2 dashboard json
+- name: Check Grafana dashboard directory
+  file:
+    path: "{{ kube_config_dir }}/dashboards"
+    state: directory
+
+- name: Add Grafana dynamic dashboard | copy json
+  template:
+    src: "{{item}}.j2"
+    dest: "{{ kube_config_dir }}/{{item}}"
+    force: true
+    owner: root
+    mode: 0755
+  with_items:
+    - "dashboards/k8s-nodes.json"
+    - "dashboards/k8s-pods.json"
+
+- name: Add Grafana dynamic dashboard | read json
+  slurp:
+    src: "{{ item }}"
+  register: read_json
+  with_items:
+    - "{{ kube_config_dir }}/dashboards/k8s-nodes.json"
+    - "{{ kube_config_dir }}/dashboards/k8s-pods.json"
+
+- name: Add Grafana dynamic dashboard | regist
+  uri:
+    url: "http://{{ clusterIPs.results[1].stdout }}:3000/api/dashboards/db"
+    method: POST
+    user: "{{ grafana_id }}"
+    password: "{{ grafana_pw }}"
+    force_basic_auth: yes
+    body: "{\"dashboard\":{{ item['content'] | b64decode }},\"overwrite\":true}"
+    body_format: json
+    headers:
+      Content-Type: 'application/json'
+  with_items: "{{ read_json.results }}"
+  no_log: True
+  ignore_errors: yes
+
+- name: Add Grafana static dashboard
+  uri:
+    url: "http://{{ clusterIPs.results[1].stdout }}:3000/api/dashboards/db"
+    method: POST
+    user: "{{ grafana_id }}"
+    password: "{{ grafana_pw }}"
+    force_basic_auth: yes
+    body: "{\"dashboard\":{{ lookup('file', item) }},\"overwrite\":true}"
+    body_format: json
+    headers:
+      Content-Type: 'application/json'
+  when: (sc_name == "ceph" and item == "ceph-cluster.json") or
+        (sc_name == "ceph" and item == "ceph-pools.json") or
+        (item != "ceph-cluster.json" and item != "ceph-pools.json")
+  with_items: "{{ dashboards }}"
+  ignore_errors: yes
+
+- name: Set grafana home dashboard
+  uri:
+    url: "http://{{ clusterIPs.results[1].stdout }}:3000/api/user/preferences"
+    method: PUT
+    user: "{{ grafana_id }}"
+    password: "{{ grafana_pw }}"
+    force_basic_auth: yes
+    body: "{\"theme\":\"\",\"homeDashboardId\":1,\"timezone\":\"GMT+9\"}"
+    body_format: json
+    headers:
+      Content-Type: 'application/json'

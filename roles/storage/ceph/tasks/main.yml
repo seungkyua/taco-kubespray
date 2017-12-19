@@ -1,0 +1,33 @@
+---
+- name: Install latest version of ceph-common for Debian distribs
+  apt:
+    name: ceph-common
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Copy ceph secret and storageclass yml
+  template:
+    src: "{{item.file}}.j2"
+    dest: "{{kube_config_dir}}/{{item.file}}"
+  with_items:
+    - {name: "{{ user_secret_name }}", file: ceph-secret-user.yml, type: secret}
+    - {name: "{{ admin_secret_name }}", file: ceph-secret-admin.yml, type: secret}
+    - {name: "{{ storageclass_name }}", file: ceph-storageclass.yml, type: storageclass}
+  register: manifests
+  when: inventory_hostname == groups['kube-master'][0]
+  tags: storage
+
+- name: Ceph Secret and StorageClass | Start Resources
+  kube:
+    name: "{{item.item.name}}"
+    namespace: "{{ system_namespace }}"
+    kubectl: "{{bin_dir}}/kubectl"
+    resource: "{{item.item.type}}"
+    filename: "{{kube_config_dir}}/{{item.item.file}}"
+    state: "{{item.changed | ternary('latest','present') }}"
+  with_items: "{{ manifests.results }}"
+  when: inventory_hostname == groups['kube-master'][0]
+  tags: storage
+

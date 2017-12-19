@@ -1,0 +1,116 @@
+---
+- name: Grafana | check exists
+  command: "{{ bin_dir }}/kubectl get pods -n {{ system_namespace }} -l 'name=grafana'"
+  register: grafana_exist
+
+- name: Grafana | delete
+  command: "{{ bin_dir }}/kubectl delete -f {{ kube_config_dir }}/grafana.yaml -n {{ system_namespace }}"
+  when: grafana_exist.stdout != ""
+  ignore_errors: yes
+
+- name: Prometheus | check exists
+  command: "{{ bin_dir }}/kubectl get pods -n {{ system_namespace }} -l 'app=prometheus'"
+  register: prometheus_result
+
+- name: Prometheus | delete
+  command: "{{ bin_dir }}/kubectl delete -f {{ kube_config_dir }}/prometheus-deploy.yaml -n {{ system_namespace }}"
+  when: prometheus_result.stdout != ""
+  ignore_errors: yes
+
+- name: Node exporter | check exists
+  command: "{{ bin_dir }}/kubectl get pods -n {{ system_namespace }} -l 'app=node-exporter'"
+  register: exporter_exist
+
+- name: Node exporter | delete
+  command: "{{ bin_dir }}/kubectl delete -f {{ kube_config_dir }}/node-exporter.yaml -n {{ system_namespace }}"
+  when: exporter_exist.stdout != ""
+  ignore_errors: yes
+
+- name: Prometheus service | check exists
+  command: "{{ bin_dir }}/kubectl get svc -n {{ system_namespace }} -l 'name=prometheus' -o jsonpath={.items..name}"
+  register: prometheus_service
+
+- name: Prometheus service | delete svc
+  command: "{{ bin_dir }}/kubectl delete -f {{ kube_config_dir }}/prometheus-svc.yaml -n {{ system_namespace }}"
+  when: prometheus_service.stdout != ""
+  ignore_errors: yes
+
+- name: Grafana | check exist pvc
+  command: "{{ bin_dir }}/kubectl get pvc -n {{ system_namespace }} -o jsonpath={.items..name}"
+  register: grafana_pvc_exist
+
+- name: Grafana | delete pvc
+  command: "{{ bin_dir }}/kubectl delete pvc grafana-pvc -n {{ system_namespace }}"
+  when: '"grafana-pvc" in grafana_pvc_exist.stdout'
+  ignore_errors: yes
+
+- name: Prometheus | check exist pvc
+  command: "{{ bin_dir }}/kubectl get pvc -n {{ system_namespace }} -o jsonpath={.items..name}"
+  register: prometheus_pvc_exist
+
+- name: Prometheus | delete pvc
+  command: "{{ bin_dir }}/kubectl delete pvc prometheus-pvc -n {{ system_namespace }}"
+  when: '"prometheus-pvc" in prometheus_pvc_exist.stdout'
+  ignore_errors: yes
+
+- name: Prometheus env and configmap | check exist
+  command: "{{ bin_dir }}/kubectl get cm -n {{ system_namespace }} -o jsonpath={.items..name}"
+  register: cm_list
+
+- name: Prometheus env | delete env
+  command: "{{ bin_dir }}/kubectl delete cm prometheus-env -n {{ system_namespace }}"
+  when: '"prometheus-env" in cm_list.stdout'
+  ignore_errors: yes
+
+- name: Prometheus configmap | delete configmap
+  command: "{{ bin_dir }}/kubectl delete cm prometheus-configmap -n {{ system_namespace }}"
+  when: '"prometheus-configmap" in cm_list.stdout'
+  ignore_errors: yes
+
+- name: Prometheus rules | check exist
+  command: "{{ bin_dir }}/kubectl get configmap -n {{ system_namespace }} -l 'app=prometheus,name=prometheus-rules'"
+  register: exist_prometheus_rules
+
+- name: Prometheus rules | delete rules
+  command: "{{ bin_dir }}/kubectl delete -f {{ kube_config_dir }}/prometheus-rules.yaml -n {{ system_namespace }}"
+  when: exist_prometheus_rules.stderr == ""
+
+- name: Alertmanager | check exist
+  command: "{{ bin_dir }}/kubectl get configmap,svc,deploy -n {{ system_namespace }} -l 'app=alertmanager'"
+  register: exist_alertmanager
+
+- name: Alertmanager | delete alertmanager
+  command: "{{ bin_dir }}/kubectl delete -f {{ kube_config_dir }}/alertmanager.yaml -n {{ system_namespace }}"
+  when: exist_alertmanager.stderr == ""
+
+- name: RBAC | check exist
+  command: "{{ bin_dir }}/kubectl get serviceaccount -n {{ system_namespace }} -l 'name=monitoring-serviceaccount'"
+  register: exist_service_account
+
+- name: RBAC | delete service account
+  command: "{{ bin_dir }}/kubectl delete serviceaccount monitoring -n {{ system_namespace }}"
+  when: exist_service_account.stderr == ""
+
+- name: RBAC | check exist
+  command: "{{ bin_dir }}/kubectl get clusterrolebinding -n {{ system_namespace }} -l 'name=monitoring-clusterrolebinding'"
+  register: exist_cluster_role_binding
+
+- name: RBAC | delete cluster role binding
+  command: "{{ bin_dir }}/kubectl delete clusterrolebinding monitoring -n {{ system_namespace }}"
+  when: exist_cluster_role_binding.stderr == ""
+
+- name: Mysql-exporter | check exist service
+  command: "{{ bin_dir }}/kubectl get svc -n {{ system_namespace }} -l 'group=mysql-exporter-svc'"
+  register: exist_mysql_exporter_svc
+
+- name: Mysql-exporter | delete mysql-exporter service
+  command: "{{ bin_dir }}/kubectl delete -f {{ kube_config_dir }}/mysql-exporter-svc.yaml -n {{ system_namespace }}"
+  when: exist_mysql_exporter_svc.stderr == ""
+
+- name: Mysql-exporter | check exist deploy
+  command: "{{ bin_dir }}/kubectl get deploy -n {{ system_namespace }} -l 'group=mysql-exporter'"
+  register: exist_mysql_exporter_deploy
+
+- name: Mysql-exporter | delete mysql-exporter deployment
+  command: "{{ bin_dir }}/kubectl delete -f {{ kube_config_dir }}/mysql-exporter.yaml -n {{ system_namespace }}"
+  when: exist_mysql_exporter_deploy.stderr == ""

@@ -1,0 +1,56 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: grafana
+    role: service
+  name: grafana
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30603
+  selector:
+    grafana: "true"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: grafana
+        grafana: "true"
+        role: db
+    spec:
+{% if rbac_enabled %}
+      serviceAccountName: monitoring 
+{% endif %}
+      containers:
+        - image: grafana/grafana
+          imagePullPolicy: Always
+          name: grafana
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+          - name: data
+            mountPath: /var/lib/grafana
+          - name: config
+            mountPath: /etc/grafana
+      volumes:
+      - name: config
+        hostPath:
+          path: {{ kube_config_dir }}/grafana
+      - name: data
+{% if sc_name == "none" %}
+        emptyDir: {}
+{% else %}
+        persistentVolumeClaim:
+         claimName: grafana-pvc
+{% endif %}
+

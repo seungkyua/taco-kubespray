@@ -1,0 +1,28 @@
+{% for ip in mysql_pod_ips %}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-exporter-{{ loop.index }}
+  namespace: {{ system_namespace }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-exporter-{{ loop.index }}
+        group: mysql-exporter
+    spec:
+{% if rbac_enabled %}
+      serviceAccountName: monitoring 
+{% endif %}
+      containers:
+      - name: mysql-exporter
+        image: prom/mysqld-exporter
+        ports:
+        - containerPort: 9104
+          name: mysql-exporter
+        env:
+        - name: DATA_SOURCE_NAME
+          value: "{{ mysql_exporter_grant_info.user }}:{{ mysql_exporter_grant_info.password }}@({{ ip.stdout }}:{{ mysql_db_info.port }})/"
+{% endfor %}

@@ -20,10 +20,10 @@ kube_token_dir: "{{ kube_config_dir }}/tokens"
 # This is where to save basic auth file
 kube_users_dir: "{{ kube_config_dir }}/users"
 
-kube_api_anonymous_auth: false
+kube_api_anonymous_auth: true
 
 ## Change this to use another Kubernetes version, e.g. a current beta release
-kube_version: v1.8.1
+kube_version: v1.9.2
 
 # Where the binaries will be downloaded.
 # Note: ensure that you've enough disk space (about 1G)
@@ -43,9 +43,6 @@ kube_log_level: 2
 kube_api_pwd: "{{ lookup('password', 'credentials/kube_user length=15 chars=ascii_letters,digits') }}"
 kube_users:
   kube:
-    pass: "{{kube_api_pwd}}"
-    role: admin
-  root:
     pass: "{{kube_api_pwd}}"
     role: admin
     groups:
@@ -68,7 +65,7 @@ kube_users:
 # kube_oidc_groups_claim: groups
 
 
-# Choose network plugin (calico, weave or flannel)
+# Choose network plugin (calico, contiv, weave or flannel)
 # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
 kube_network_plugin: calico
 
@@ -109,14 +106,19 @@ kube_network_node_prefix: 24
 kube_apiserver_ip: "{{ kube_service_addresses|ipaddr('net')|ipaddr(1)|ipaddr('address') }}"
 kube_apiserver_port: 6443 # (https)
 kube_apiserver_insecure_port: 8080 # (http)
+# Set to 0 to disable insecure port - Requires RBAC in authorization_modes and kube_api_anonymous_auth: true
+#kube_apiserver_insecure_port: 0 # (disabled)
 
 # DNS configuration.
 # Kubernetes cluster name, also will be used as DNS domain
 cluster_name: cluster.local
 # Subdomains of DNS domain to be resolved via /etc/resolv.conf for hostnet pods
 ndots: 2
-# Can be dnsmasq_kubedns, kubedns or none
+# Can be dnsmasq_kubedns, kubedns, manual or none
 dns_mode: kubedns
+# Set manual server if using a custom cluster DNS server
+#manual_dns_server: 10.x.x.x
+
 # Can be docker_dns, host_resolvconf or none
 resolvconf_mode: docker_dns
 # Deploy netchecker app to verify DNS resolve as an HTTP service
@@ -128,20 +130,26 @@ dns_domain: "{{ cluster_name }}"
 
 # Path used to store Docker data
 docker_daemon_graph: "/var/lib/docker"
+
+## A string of extra options to pass to the docker daemon.
+## This string should be exactly as you wish it to appear.
+## An obvious use case is allowing insecure-registry access
+## to self hosted registries like so:
+
+docker_options: "--default-ulimit nofile=1024:1048576 --insecure-registry=tacorepo:5000 --insecure-registry={{ kube_service_addresses }} --graph={{ docker_daemon_graph }} {{ docker_log_opts }}"
 docker_bin_dir: "/usr/bin"
 
 # Settings for containerized control plane (etcd/kubelet/secrets)
 etcd_deployment_type: docker
 kubelet_deployment_type: host
 vault_deployment_type: docker
-
-# etcd memory Limits
-etcd_memory_limit: 8192M
+helm_deployment_type: host
 
 # K8s image pull policy (imagePullPolicy)
 k8s_image_pull_policy: IfNotPresent
 
-# Kubernetes dashboard (available at http://first_master:6443/ui by default)
+# Kubernetes dashboard
+# RBAC required. see docs/getting-started.md for access details.
 dashboard_enabled: true
 
 # Monitoring apps for k8s
@@ -150,11 +158,14 @@ efk_enabled: false
 # Helm deployment
 helm_enabled: true
 
-# Istio depoyment
+# Istio deployment
 istio_enabled: false
 
-# Weave scope
-weave_scope_enabled: true
+# Local volume provisioner deployment
+local_volumes_enabled: false
+
+# Add Persistent Volumes Storage Class for corresponding cloud provider ( OpenStack is only supported now )
+persistent_volumes_enabled: false
 
 # Make a copy of kubeconfig on the host that runs Ansible in GITDIR/artifacts
 # kubeconfig_localhost: false
@@ -170,23 +181,26 @@ weave_scope_enabled: true
 # kubelet_cgroups_per_qos: true
 
 # A comma separated list of levels of node allocatable enforcement to be enforced by kubelet.
-# Acceptible options are 'pods', 'system-reserved', 'kube-reserved' and ''. Default is "".
+# Acceptable options are 'pods', 'system-reserved', 'kube-reserved' and ''. Default is "".
 # kubelet_enforce_node_allocatable: pods
 
 ## Supplementary addresses that can be added in kubernetes ssl keys.
-## That can be usefull for example to setup a keepalived virtual IP
+## That can be useful for example to setup a keepalived virtual IP
 # supplementary_addresses_in_ssl_keys: [10.0.0.1, 10.0.0.2, 10.0.0.3]
 
-##########################################
-# oreo-kargo override values
-##########################################
-kubelet_deployment_type: host
+## Running on top of openstack vms with cinder enabled may lead to unschedulable pods due to NoVolumeZoneConflict restriction in kube-scheduler.
+## See https://github.com/kubernetes-incubator/kubespray/issues/2141
+## Set this variable to true to get rid of this issue
+volume_cross_zone_attachment: false
 
+##########################################
+# oreo-kargo added values
+##########################################
 # Use true only oreo-k5-cluster
-calico_node_ignorelooserpf: true
+calico_node_ignorelooserpf: false
 
-# Make pause set uid 1
+# Use false to make pause set uid 1
 kubelet_disable_shared_pid: false
 
-# Lower the open file soft limit for containers down to 1024
-docker_options: "--default-ulimit nofile=1024:1048576 --insecure-registry=tacorepo:5000 --insecure-registry={{ kube_service_addresses }} --graph={{ docker_daemon_graph }} {{ docker_log_opts }}"
+# etcd memory Limits
+etcd_memory_limit: 8192M

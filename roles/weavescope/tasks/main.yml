@@ -1,0 +1,14 @@
+- name: WeaveScope | copy yaml
+  template:
+    src: weave_scope.j2
+    dest: "{{ kube_config_dir }}/weave_scope.yml"
+    force: true
+    owner: root
+    mode: 0755
+  run_once: yes
+  when: inventory_hostname == groups['kube-master'][0]
+
+- name: WeaveScope | install weavescope
+  command: "{{ bin_dir }}/kubectl apply --namespace {{ system_namespace }} -f {{ kube_config_dir }}/weave_scope.yml"
+  run_once: yes
+  when: inventory_hostname == groups['kube-master'][0]

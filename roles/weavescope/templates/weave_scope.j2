@@ -6,7 +6,7 @@ items:
     metadata:
       name: weave
       annotations:
-        cloud.weave.works/version: v1.0.0-29-g7a77bbb
+        cloud.weave.works/version: v1.0.0-77-gd22b9f5
   - apiVersion: v1
     kind: ServiceAccount
     metadata:
@@ -15,14 +15,14 @@ items:
         cloud.weave.works/launcher-info: |-
           {
             "original-request": {
-              "url": "/k8s/v1.8/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0KU2VydmVyIFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0K",
-              "date": "Wed Feb 14 2018 05:26:26 GMT+0000 (UTC)"
+              "url": "/k8s/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiMSIsIE1pbm9yOiIxMCIsIEdpdFZlcnNpb246InYxLjEwLjAiLCBHaXRDb21taXQ6ImZjMzJkMmYzNjk4ZTM2YjkzMzIyYTM0NjVmNjNhMTRlOWYwZWFlYWQiLCBHaXRUcmVlU3RhdGU6ImNsZWFuIiwgQnVpbGREYXRlOiIyMDE4LTAzLTI2VDE2OjQ0OjEwWiIsIEdvVmVyc2lvbjoiZ28xLjkuMyIsIENvbXBpbGVyOiJnYyIsIFBsYXRmb3JtOiJsaW51eC9hbWQ2NCJ9ClNlcnZlciBWZXJzaW9uOiB2ZXJzaW9uLkluZm97TWFqb3I6IjEiLCBNaW5vcjoiMTAiLCBHaXRWZXJzaW9uOiJ2MS4xMC4wIiwgR2l0Q29tbWl0OiJmYzMyZDJmMzY5OGUzNmI5MzMyMmEzNDY1ZjYzYTE0ZTlmMGVhZWFkIiwgR2l0VHJlZVN0YXRlOiJjbGVhbiIsIEJ1aWxkRGF0ZToiMjAxOC0wMy0yNlQxNjo0NDoxMFoiLCBHb1ZlcnNpb246ImdvMS45LjMiLCBDb21waWxlcjoiZ2MiLCBQbGF0Zm9ybToibGludXgvYW1kNjQifQo=",
+              "date": "Wed Apr 25 2018 02:55:07 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
       labels:
         name: weave-scope
-      namespace: kube-system
+      namespace: weave
   - apiVersion: rbac.authorization.k8s.io/v1beta1
     kind: ClusterRole
     metadata:
@@ -31,14 +31,14 @@ items:
         cloud.weave.works/launcher-info: |-
           {
             "original-request": {
-              "url": "/k8s/v1.8/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0KU2VydmVyIFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0K",
-              "date": "Wed Feb 14 2018 05:26:26 GMT+0000 (UTC)"
+              "url": "/k8s/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiMSIsIE1pbm9yOiIxMCIsIEdpdFZlcnNpb246InYxLjEwLjAiLCBHaXRDb21taXQ6ImZjMzJkMmYzNjk4ZTM2YjkzMzIyYTM0NjVmNjNhMTRlOWYwZWFlYWQiLCBHaXRUcmVlU3RhdGU6ImNsZWFuIiwgQnVpbGREYXRlOiIyMDE4LTAzLTI2VDE2OjQ0OjEwWiIsIEdvVmVyc2lvbjoiZ28xLjkuMyIsIENvbXBpbGVyOiJnYyIsIFBsYXRmb3JtOiJsaW51eC9hbWQ2NCJ9ClNlcnZlciBWZXJzaW9uOiB2ZXJzaW9uLkluZm97TWFqb3I6IjEiLCBNaW5vcjoiMTAiLCBHaXRWZXJzaW9uOiJ2MS4xMC4wIiwgR2l0Q29tbWl0OiJmYzMyZDJmMzY5OGUzNmI5MzMyMmEzNDY1ZjYzYTE0ZTlmMGVhZWFkIiwgR2l0VHJlZVN0YXRlOiJjbGVhbiIsIEJ1aWxkRGF0ZToiMjAxOC0wMy0yNlQxNjo0NDoxMFoiLCBHb1ZlcnNpb246ImdvMS45LjMiLCBDb21waWxlcjoiZ2MiLCBQbGF0Zm9ybToibGludXgvYW1kNjQifQo=",
+              "date": "Wed Apr 25 2018 02:55:07 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
       labels:
         name: weave-scope
-      namespace: kube-system
+      namespace: weave
     rules:
       - apiGroups:
           - '*'
@@ -58,14 +58,14 @@ items:
         cloud.weave.works/launcher-info: |-
           {
             "original-request": {
-              "url": "/k8s/v1.8/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0KU2VydmVyIFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0K",
-              "date": "Wed Feb 14 2018 05:26:26 GMT+0000 (UTC)"
+              "url": "/k8s/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiMSIsIE1pbm9yOiIxMCIsIEdpdFZlcnNpb246InYxLjEwLjAiLCBHaXRDb21taXQ6ImZjMzJkMmYzNjk4ZTM2YjkzMzIyYTM0NjVmNjNhMTRlOWYwZWFlYWQiLCBHaXRUcmVlU3RhdGU6ImNsZWFuIiwgQnVpbGREYXRlOiIyMDE4LTAzLTI2VDE2OjQ0OjEwWiIsIEdvVmVyc2lvbjoiZ28xLjkuMyIsIENvbXBpbGVyOiJnYyIsIFBsYXRmb3JtOiJsaW51eC9hbWQ2NCJ9ClNlcnZlciBWZXJzaW9uOiB2ZXJzaW9uLkluZm97TWFqb3I6IjEiLCBNaW5vcjoiMTAiLCBHaXRWZXJzaW9uOiJ2MS4xMC4wIiwgR2l0Q29tbWl0OiJmYzMyZDJmMzY5OGUzNmI5MzMyMmEzNDY1ZjYzYTE0ZTlmMGVhZWFkIiwgR2l0VHJlZVN0YXRlOiJjbGVhbiIsIEJ1aWxkRGF0ZToiMjAxOC0wMy0yNlQxNjo0NDoxMFoiLCBHb1ZlcnNpb246ImdvMS45LjMiLCBDb21waWxlcjoiZ2MiLCBQbGF0Zm9ybToibGludXgvYW1kNjQifQo=",
+              "date": "Wed Apr 25 2018 02:55:07 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
       labels:
         name: weave-scope
-      namespace: kube-system
+      namespace: weave
     roleRef:
       kind: ClusterRole
       name: weave-scope
@@ -73,7 +73,7 @@ items:
     subjects:
       - kind: ServiceAccount
         name: weave-scope
-        namespace: kube-system
+        namespace: weave
   - apiVersion: apps/v1beta1
     kind: Deployment
     metadata:
@@ -82,8 +82,8 @@ items:
         cloud.weave.works/launcher-info: |-
           {
             "original-request": {
-              "url": "/k8s/v1.8/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0KU2VydmVyIFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0K",
-              "date": "Wed Feb 14 2018 05:26:26 GMT+0000 (UTC)"
+              "url": "/k8s/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiMSIsIE1pbm9yOiIxMCIsIEdpdFZlcnNpb246InYxLjEwLjAiLCBHaXRDb21taXQ6ImZjMzJkMmYzNjk4ZTM2YjkzMzIyYTM0NjVmNjNhMTRlOWYwZWFlYWQiLCBHaXRUcmVlU3RhdGU6ImNsZWFuIiwgQnVpbGREYXRlOiIyMDE4LTAzLTI2VDE2OjQ0OjEwWiIsIEdvVmVyc2lvbjoiZ28xLjkuMyIsIENvbXBpbGVyOiJnYyIsIFBsYXRmb3JtOiJsaW51eC9hbWQ2NCJ9ClNlcnZlciBWZXJzaW9uOiB2ZXJzaW9uLkluZm97TWFqb3I6IjEiLCBNaW5vcjoiMTAiLCBHaXRWZXJzaW9uOiJ2MS4xMC4wIiwgR2l0Q29tbWl0OiJmYzMyZDJmMzY5OGUzNmI5MzMyMmEzNDY1ZjYzYTE0ZTlmMGVhZWFkIiwgR2l0VHJlZVN0YXRlOiJjbGVhbiIsIEJ1aWxkRGF0ZToiMjAxOC0wMy0yNlQxNjo0NDoxMFoiLCBHb1ZlcnNpb246ImdvMS45LjMiLCBDb21waWxlcjoiZ2MiLCBQbGF0Zm9ybToibGludXgvYW1kNjQifQo=",
+              "date": "Wed Apr 25 2018 02:55:07 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
@@ -92,7 +92,7 @@ items:
         app: weave-scope
         weave-cloud-component: scope
         weave-scope-component: app
-      namespace: kube-system
+      namespace: weave
     spec:
       replicas: 1
       revisionHistoryLimit: 2
@@ -108,7 +108,8 @@ items:
             - name: app
               args:
                 - '--no-probe'
-              image: 'weaveworks/scope:1.7.3'
+              env: []
+              image: 'weaveworks/scope:1.9.0'
               imagePullPolicy: IfNotPresent
               ports:
                 - containerPort: 4040
@@ -121,8 +122,8 @@ items:
         cloud.weave.works/launcher-info: |-
           {
             "original-request": {
-              "url": "/k8s/v1.8/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0KU2VydmVyIFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0K",
-              "date": "Wed Feb 14 2018 05:26:26 GMT+0000 (UTC)"
+              "url": "/k8s/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiMSIsIE1pbm9yOiIxMCIsIEdpdFZlcnNpb246InYxLjEwLjAiLCBHaXRDb21taXQ6ImZjMzJkMmYzNjk4ZTM2YjkzMzIyYTM0NjVmNjNhMTRlOWYwZWFlYWQiLCBHaXRUcmVlU3RhdGU6ImNsZWFuIiwgQnVpbGREYXRlOiIyMDE4LTAzLTI2VDE2OjQ0OjEwWiIsIEdvVmVyc2lvbjoiZ28xLjkuMyIsIENvbXBpbGVyOiJnYyIsIFBsYXRmb3JtOiJsaW51eC9hbWQ2NCJ9ClNlcnZlciBWZXJzaW9uOiB2ZXJzaW9uLkluZm97TWFqb3I6IjEiLCBNaW5vcjoiMTAiLCBHaXRWZXJzaW9uOiJ2MS4xMC4wIiwgR2l0Q29tbWl0OiJmYzMyZDJmMzY5OGUzNmI5MzMyMmEzNDY1ZjYzYTE0ZTlmMGVhZWFkIiwgR2l0VHJlZVN0YXRlOiJjbGVhbiIsIEJ1aWxkRGF0ZToiMjAxOC0wMy0yNlQxNjo0NDoxMFoiLCBHb1ZlcnNpb246ImdvMS45LjMiLCBDb21waWxlcjoiZ2MiLCBQbGF0Zm9ybToibGludXgvYW1kNjQifQo=",
+              "date": "Wed Apr 25 2018 02:55:07 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
@@ -131,15 +132,15 @@ items:
         app: weave-scope
         weave-cloud-component: scope
         weave-scope-component: app
-      namespace: kube-system
+      namespace: weave
     spec:
-      type: NodePort
       ports:
         - name: app
           port: 80
           protocol: TCP
           targetPort: 4040
-          nodePort: 30162
+          nodePort: 32080
+      type: NodePort
       selector:
         name: weave-scope-app
         app: weave-scope
@@ -153,8 +154,8 @@ items:
         cloud.weave.works/launcher-info: |-
           {
             "original-request": {
-              "url": "/k8s/v1.8/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0KU2VydmVyIFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiIiwgTWlub3I6IiIsIEdpdFZlcnNpb246InYxLjkuMCtjb3Jlb3MuMCIsIEdpdENvbW1pdDoiMWI2OWEyYTZjMDExOTQ0MjFiMGFhMTc3NDdhOGMxYTgxNzM4YThkZCIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMTctMTItMTlUMDI6NTI6MTVaIiwgR29WZXJzaW9uOiJnbzEuOS4yIiwgQ29tcGlsZXI6ImdjIiwgUGxhdGZvcm06ImxpbnV4L2FtZDY0In0K",
-              "date": "Wed Feb 14 2018 05:26:26 GMT+0000 (UTC)"
+              "url": "/k8s/scope.yaml?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiMSIsIE1pbm9yOiIxMCIsIEdpdFZlcnNpb246InYxLjEwLjAiLCBHaXRDb21taXQ6ImZjMzJkMmYzNjk4ZTM2YjkzMzIyYTM0NjVmNjNhMTRlOWYwZWFlYWQiLCBHaXRUcmVlU3RhdGU6ImNsZWFuIiwgQnVpbGREYXRlOiIyMDE4LTAzLTI2VDE2OjQ0OjEwWiIsIEdvVmVyc2lvbjoiZ28xLjkuMyIsIENvbXBpbGVyOiJnYyIsIFBsYXRmb3JtOiJsaW51eC9hbWQ2NCJ9ClNlcnZlciBWZXJzaW9uOiB2ZXJzaW9uLkluZm97TWFqb3I6IjEiLCBNaW5vcjoiMTAiLCBHaXRWZXJzaW9uOiJ2MS4xMC4wIiwgR2l0Q29tbWl0OiJmYzMyZDJmMzY5OGUzNmI5MzMyMmEzNDY1ZjYzYTE0ZTlmMGVhZWFkIiwgR2l0VHJlZVN0YXRlOiJjbGVhbiIsIEJ1aWxkRGF0ZToiMjAxOC0wMy0yNlQxNjo0NDoxMFoiLCBHb1ZlcnNpb246ImdvMS45LjMiLCBDb21waWxlcjoiZ2MiLCBQbGF0Zm9ybToibGludXgvYW1kNjQifQo=",
+              "date": "Wed Apr 25 2018 02:55:07 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
@@ -163,8 +164,9 @@ items:
         app: weave-scope
         weave-cloud-component: scope
         weave-scope-component: agent
-      namespace: kube-system
+      namespace: weave
     spec:
+      minReadySeconds: 5
       template:
         metadata:
           labels:
@@ -181,8 +183,13 @@ items:
                 - '--probe.docker=true'
                 - '--probe.kubernetes=true'
                 - 'weave-scope-app.weave.svc.cluster.local:80'
-              env: []
-              image: 'weaveworks/scope:1.7.3'
+              env:
+                - name: KUBERNETES_HOSTNAME
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: spec.nodeName
+              image: 'weaveworks/scope:1.9.0'
               imagePullPolicy: IfNotPresent
               securityContext:
                 privileged: true

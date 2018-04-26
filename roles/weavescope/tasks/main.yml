@@ -5,10 +5,10 @@
     force: true
     owner: root
     mode: 0755
-  run_once: yes
   when: inventory_hostname == groups['kube-master'][0]
 
 - name: WeaveScope | install weavescope
-  command: "{{ bin_dir }}/kubectl apply --namespace {{ system_namespace }} -f {{ kube_config_dir }}/weave_scope.yml"
+  command: "{{ bin_dir }}/kubectl apply --namespace weave -f {{ kube_config_dir }}/weave_scope.yml"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: yes
-  when: inventory_hostname == groups['kube-master'][0]
+
